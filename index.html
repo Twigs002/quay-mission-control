@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quay 1 · Mission Control</title>
+  <meta name="description" content="Quay 1 Mission Control — owner-only operations overview." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+
+  <!-- ===================== LOGIN ===================== -->
+  <div id="loginScreen" class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="mark" data-logo></span>
+        <div>
+          <h1>Mission Control</h1>
+          <div class="sub">Quay 1 · Superuser access</div>
+        </div>
+      </div>
+      <p class="lead">Sign in to view the operations overview. Access is restricted to Quay 1 superusers.</p>
+      <div id="loginError" class="auth-error hidden" role="alert"></div>
+
+      <button id="googleBtn" class="btn btn-google" type="button">
+        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/><path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/><path fill="#FBBC05" d="M11.69 28.18c-.44-1.32-.69-2.73-.69-4.18s.25-2.86.69-4.18v-5.7H4.34A21.99 21.99 0 0 0 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/><path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/></svg>
+        Continue with Google
+      </button>
+
+      <div id="pinBlock" class="hidden">
+        <div class="divider">or sign in with username + PIN</div>
+        <form id="pinForm">
+          <div class="field">
+            <label for="pinUser">Username</label>
+            <input class="input" id="pinUser" name="pinUser" type="text" autocomplete="username" placeholder="admin" required />
+          </div>
+          <div class="field">
+            <label for="pinPass">PIN</label>
+            <input class="input" id="pinPass" name="pinPass" type="password" autocomplete="current-password" placeholder="••••" required />
+          </div>
+          <button id="pinSubmit" class="btn btn-primary" type="submit">Sign in</button>
+        </form>
+      </div>
+      <p class="auth-note">Session persists on this device until you sign out.</p>
+    </div>
+  </div>
+
+  <!-- ===================== NOT AUTHORISED ===================== -->
+  <div id="lockScreen" class="auth-wrap hidden">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="mark" data-logo></span>
+        <div>
+          <h1>Not authorised</h1>
+          <div class="sub">Quay 1 · Mission Control</div>
+        </div>
+      </div>
+      <p class="lead">You are signed in, but Mission Control is restricted to the owner.</p>
+      <div class="lock-identity">
+        <div class="row"><span>Signed in as</span><b id="lockEmail">—</b></div>
+        <div class="row" id="lockStaffRow"><span>Staff ID</span><b id="lockStaffId">—</b></div>
+      </div>
+      <p class="auth-note">To grant yourself access, add the values below to <code>OWNER_EMAILS</code> / <code>OWNER_IDS</code> in <code>assets/config.js</code> (and the SQL owner allow-list in <code>mc_is_super()</code>):</p>
+      <div class="lock-identity" style="margin-top:10px">
+        <div class="row"><span>OWNER_EMAILS +=</span><code id="lockCopyEmail">—</code></div>
+        <div class="row" id="lockCopyIdRow"><span>OWNER_IDS +=</span><code id="lockCopyId">—</code></div>
+      </div>
+      <button id="lockSignOut" class="btn" type="button" style="margin-top:16px">Sign out</button>
+    </div>
+  </div>
+
+  <!-- ===================== APP ===================== -->
+  <div id="app" class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="logo" id="mcLogo">
+        <span class="mark" data-logo-light></span>
+        <div class="txt"><b>Mission Control</b><span>Quay 1</span></div>
+      </div>
+      <nav id="nav"></nav>
+      <div class="spacer"></div>
+      <div class="foot" id="collectorFoot">Collector: —</div>
+    </aside>
+    <div class="scrim hidden" id="scrim"></div>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+        <div>
+          <h2 id="viewTitle">Overview</h2>
+          <div class="sub" id="viewSub">Operations at a glance</div>
+        </div>
+        <div class="right">
+          <span id="freshChip" class="freshness" title="Collector freshness"><span class="dot"></span><span id="freshText">—</span></span>
+          <div class="identity">
+            <b id="idName">—</b>
+            <span id="idEmail">—</span>
+          </div>
+          <button class="icon-btn" id="refreshBtn" aria-label="Refresh data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6"/></svg>
+            <span>Refresh</span>
+          </button>
+          <button class="icon-btn" id="signOutBtn" aria-label="Sign out">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            <span>Sign out</span>
+          </button>
+        </div>
+      </header>
+      <main class="content" id="content"><!-- views render here --></main>
+    </div>
+  </div>
+
+  <div id="modalRoot"></div>
+  <div id="toastRoot"></div>
+
+  <script src="assets/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://twigs002.github.io/quay-dashboard-v2/quay-nav.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</body>
+</html>
