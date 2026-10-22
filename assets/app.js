@@ -143,6 +143,11 @@
       var sess = r && r.data && r.data.session;
       if (!sess || !sess.user) { show('login'); return; }
       session.user = sess.user;
+      bootStaff(sess);
+    }).catch(function () { show('login'); });
+  }
+
+  function bootStaff(sess) {
       // fetch staff row
       sb.from('staff').select('id,name,is_super').eq('auth_user_id', sess.user.id).maybeSingle()
         .then(function (sr) {
@@ -160,7 +165,6 @@
           window.QUAY_SESSION = { id: null, name: session.user.email, super: true };
           enterApp();
         });
-    });
   }
 
   function show(which) {
@@ -244,7 +248,10 @@
     if (!sb) return;
     var btn = $('refreshBtn'); if (btn) btn.classList.add('spin');
     if (!LOADED && !silent) render(); // show skeletons first time
-    var since = new Date(Date.now() - 2 * 86400 * 1000).toISOString();
+    // 14-day window: "in now"/today use the SAST-day filter in clockState, but
+    // the wider window lets us catch someone who clocked in days ago and never
+    // clocked out (missing-clock-out anomaly), which a 48h window would miss.
+    var since = new Date(Date.now() - 14 * 86400 * 1000).toISOString();
 
     var q = [
       sb.from('mc_site_health').select('*'),

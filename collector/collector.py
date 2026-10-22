@@ -654,15 +654,18 @@ def run_once(url, key, push):
                 f"{MAX_CODE_ERROR_ROWS} most-recent")
             ranked = ranked[:MAX_CODE_ERROR_ROWS]
         # Preserve first_seen across cycles: GET the existing rows and only set
-        # first_seen from this cycle when the fingerprint is new. count is the
-        # prior count plus occurrences seen this cycle.
+        # first_seen from this cycle when the fingerprint is new.
+        # `count` is the number of occurrences currently visible in the 24h scan
+        # window (NOT cumulative): each cycle re-reads the same tail, so adding
+        # to the prior count would inflate it ~288x/day. Current-window count is
+        # a stable, meaningful "how often is this erroring lately" figure.
         fps = [r["fingerprint"] for r in ranked]
         existing = supabase_select_fingerprints(url, key, fps) if push else {}
         for r in ranked:
             fp = r["fingerprint"]
             prior = existing.get(fp)
             first_seen = prior["first_seen"] if prior else utc_iso(r["first"])
-            count = (prior["count"] if prior else 0) + r["count"]
+            count = r["count"]
             error_rows.append({
                 "fingerprint": fp,
                 "job": r["job"],
@@ -718,7 +721,11 @@ def main():
     log("=" * 60)
 
     if args.once:
-        run_once(url, key, push)
+        try:
+            run_once(url, key, push)
+        except Exception as e:
+            log(f"[cycle] error: {e}")
+            log(traceback.format_exc())
         return
 
     log(f"loop mode, interval={args.interval}s")
