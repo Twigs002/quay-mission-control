@@ -29,6 +29,6 @@ window.MC_CFG = Object.freeze({
     { id: 'boarding',  label: 'On/Offboarding Tool',   url: 'https://twigs002.github.io/quay-1-onoff-boarding-tool/' },
     { id: 'polar',     label: 'Polar Push',            url: 'https://twigs002.github.io/polar-push/' },
     { id: 'invoicing', label: 'Broker Invoicing',      url: 'https://twigs002.github.io/broker-invoicing/' },
-    { id: 'clock',     label: 'Clock In/Out',          url: 'https://quay-clock.vercel.app/' },
+    { id: 'clock',     label: 'Clock In/Out',          url: 'https://staffclock-app.vercel.app/' },
   ],
 });
