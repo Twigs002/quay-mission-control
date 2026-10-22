@@ -566,11 +566,21 @@
       return '<div class="bar-row"><span class="nm" title="' + esc(siteLabel[r.site] || r.site) + '">' + esc(siteLabel[r.site] || r.site) + '</span><div class="bar-track"><div class="bar-fill" style="width:' + Math.max(4, Math.round(r.n / max * 100)) + '%"></div></div><span class="num">' + r.n + '</span></div>';
     }).join('');
 
+    // Resolve a display name for a usage row: the name the ping captured, else
+    // look the staff_id up in the staff table (apps other than Mission Control
+    // don't expose a full name to the ping, so the row only carries the
+    // username), else a friendly fallback.
+    function usageName(u) {
+      if (u.name) return u.name;
+      if (u.staff_id) return staffName(u.staff_id);
+      return 'Someone';
+    }
+
     // per-user table (use full 1000 window for who/last-seen)
     var byUser = {};
     DATA.usage.forEach(function (u) {
       var key = u.staff_id || u.name || 'anon';
-      if (!byUser[key]) byUser[key] = { name: u.name || ('Staff ' + (u.staff_id || '?')), total: 0, last: u.ts, apps: {}, isSuper: u.is_super };
+      if (!byUser[key]) byUser[key] = { name: usageName(u), total: 0, last: u.ts, apps: {}, isSuper: u.is_super };
       var b = byUser[key]; b.total++; b.apps[u.site || '?'] = true;
       if (parse(u.ts) > parse(b.last)) b.last = u.ts;
     });
@@ -582,7 +592,8 @@
 
     // recent feed
     var feed = DATA.usage.slice(0, 40).map(function (u) {
-      return '<div class="att-item"><span class="avatar">' + esc(initials(u.name)) + '</span><div class="body"><b>' + esc(u.name || 'Someone') + '</b><span>opened ' + esc(siteLabel[u.site] || u.site || '?') + (u.path ? ' · ' + esc(u.path) : '') + '</span></div><span class="when">' + relTime(u.ts) + '</span></div>';
+      var nm = usageName(u);
+      return '<div class="att-item"><span class="avatar">' + esc(initials(nm)) + '</span><div class="body"><b>' + esc(nm) + '</b><span>opened ' + esc(siteLabel[u.site] || u.site || '?') + (u.path ? ' · ' + esc(u.path) : '') + '</span></div><span class="when">' + relTime(u.ts) + '</span></div>';
     }).join('');
 
     return '<div class="two-col"><div><div class="section-title"><h3>Most active apps</h3><span class="count">last 30 days · ' + win.length + ' opens</span></div><div class="card card-pad">' + (bars || empty('No opens in 30 days', '', 'usage')) + '</div>'
