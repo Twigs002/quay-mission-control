@@ -482,12 +482,25 @@ def scan_logs(job, now):
 # State
 # ---------------------------------------------------------------------------
 def compute_state(job, now):
+    """Job state from ACTUAL run outcome, not merely "a log contains ERROR".
+
+    Hard 'error' is reserved for a genuinely failed last run (nonzero launchd
+    exit) or a stalled schedule. A job that ran and exited cleanly but whose
+    logs carry handled/transient noise in the window (recovered Sheets/HTTP
+    timeouts, DNS blips on wake, per-record skips) is 'warn' (amber) — it is NOT
+    broken. This stops the board painting healthy jobs red.
+    """
     if job["category"] == "disabled":
         return "disabled"
+
     last_exit = job.get("last_exit")
-    if last_exit not in (0, None):
-        return "error"
-    if job.get("error_count_24h", 0) > 0:
+    pid = job.get("pid")
+    # A currently-running daemon is up, whatever its last recorded exit was
+    # (long-running jobs show the status of their previous restart). Only treat
+    # a NON-running job's nonzero exit as a real failure — and not when it was
+    # simply signalled to stop (SIGTERM=15 / 128+15=143 on reload/sleep).
+    SIGNAL_EXITS = (15, 143)
+    if not pid and isinstance(last_exit, int) and last_exit != 0 and last_exit not in SIGNAL_EXITS:
         return "error"
 
     expected = job.get("expected_interval_secs")
@@ -500,13 +513,20 @@ def compute_state(job, now):
     loaded = job.get("loaded", False)
     recent_threshold = STALL_MULTIPLIER * expected if expected else ERROR_WINDOW_SECS
     has_recent = bool(last_log_ts) and (now - last_log_ts).total_seconds() <= recent_threshold
+    has_errors = job.get("error_count_24h", 0) > 0
 
-    if loaded and has_recent:
-        return "ok"
-    if loaded and job["category"] == "scheduled":
-        return "idle"
+    # Recent log activity is the strongest "it's alive" signal — stronger than
+    # launchctl's loaded flag, whose per-job reads can intermittently come back
+    # empty. If a job wrote to its log inside the window, it ran: ok (or amber
+    # if the logs are noisy), never "unknown".
+    if has_recent:
+        return "warn" if has_errors else "ok"
     if loaded:
-        return "idle"
+        # Loaded, scheduled, no recent output yet — waiting for its next run.
+        return "warn" if has_errors else "idle"
+    # No recent activity and not confirmed loaded: noise → warn, else unclear.
+    if has_errors:
+        return "warn"
     return "unknown"
 
 

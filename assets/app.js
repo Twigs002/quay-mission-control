@@ -306,7 +306,7 @@
       return { id: c.id, label: c.label, url: c.url, health: h };
     });
   }
-  function jobSeverity(state) { return ({ error: 0, stalled: 1, idle: 2, unknown: 3, ok: 4, disabled: 5 })[state] != null ? ({ error: 0, stalled: 1, idle: 2, unknown: 3, ok: 4, disabled: 5 })[state] : 3; }
+  function jobSeverity(state) { var m = { error: 0, stalled: 1, warn: 2, idle: 3, unknown: 4, ok: 5, disabled: 6 }; return m[state] != null ? m[state] : 4; }
   function sortedJobs() { return DATA.jobs.slice().sort(function (a, b) { return jobSeverity(a.state) - jobSeverity(b.state); }); }
 
   function clockState() {
@@ -410,8 +410,11 @@
     var up = reported.filter(function (s) { return s.health.ok; }).length;
     var cs = clockState();
     var openIssues = DATA.issues.filter(function (i) { return i.status !== 'closed'; }).length;
-    var jobsOk = DATA.jobs.filter(function (j) { return j.state === 'ok'; }).length;
     var jobsBad = DATA.jobs.filter(function (j) { return j.state === 'error' || j.state === 'stalled'; }).length;
+    // "Healthy" = everything that isn't a hard failure (ok/warn/idle/disabled).
+    // A 'warn' job ran and exited clean; it just logged handled/transient noise.
+    var jobsOk = DATA.jobs.length - jobsBad;
+    var jobsWarn = DATA.jobs.filter(function (j) { return j.state === 'warn'; }).length;
     var hb = DATA.heartbeat;
 
     var sitesCls = reported.length && up === reported.length ? 'ok' : (up < reported.length ? 'bad' : '');
@@ -422,7 +425,7 @@
       kpi(sitesCls, 'sites', 'Sites up', reported.length ? (up + ' <small>/ ' + reported.length + '</small>') : '—', reported.length ? 'monitored apps' : 'no collector data yet'),
       kpi('', 'clock', 'Clocked in now', cs.inNow.length, cs.todayPunches + ' punches today'),
       kpi(issuesCls, 'issues', 'Open issues', openIssues, DATA.issues.length + ' total logged'),
-      kpi(jobsCls, 'jobs', 'Jobs healthy', jobsOk + ' <small>/ ' + DATA.jobs.length + '</small>', jobsBad > 0 ? (jobsBad + ' need attention') : 'all nominal'),
+      kpi(jobsCls, 'jobs', 'Jobs healthy', jobsOk + ' <small>/ ' + DATA.jobs.length + '</small>', jobsBad > 0 ? (jobsBad + ' need attention') : (jobsWarn > 0 ? (jobsWarn + ' with warnings') : 'all nominal')),
       kpi('accent', 'overview', 'Collector', hb && hb.last_run ? relTime(hb.last_run).replace(' ago', '') : 'no data', hb && hb.last_run ? 'last run ago' : 'never reported')
     ].join('');
 
@@ -494,7 +497,7 @@
     var all = sortedJobs();
     if (!all.length) return empty('No jobs reported', 'The collector has not written job health yet.', 'jobs');
     var counts = {}; DATA.jobs.forEach(function (j) { counts[j.state] = (counts[j.state] || 0) + 1; });
-    var states = ['all', 'error', 'stalled', 'idle', 'ok', 'disabled', 'unknown'];
+    var states = ['all', 'error', 'stalled', 'warn', 'idle', 'ok', 'disabled', 'unknown'];
     var chips = states.map(function (st) {
       var n = st === 'all' ? DATA.jobs.length : (counts[st] || 0);
       if (st !== 'all' && !n) return '';
