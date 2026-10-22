@@ -3,3 +3,6 @@ node_modules/
 *.log
 collector/.venv/
 collector/*.local
+.claude-flow/
+.ruflo/
+.grokbot/
