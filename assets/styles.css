@@ -13,7 +13,7 @@
   --line: #E0E7F1;
   --panel: #EEF2F8;
   --bg: #F7F9FC;
-  --purple: #5B3DA6;
+  --purple: #3D5BA6;  /* retired: mapped to Quay 1 blue so nothing renders off-brand */
   --white: #ffffff;
   --ink: #1E2E59;
   --muted: #6B7891;
@@ -143,7 +143,7 @@ select.input { appearance: none; background-image: url("data:image/svg+xml,%3Csv
 }
 .nav-item svg { width: 18px; height: 18px; flex: 0 0 auto; opacity: .85; }
 .nav-item:hover { background: rgba(255,255,255,.07); color: #fff; }
-.nav-item.active { background: rgba(91,61,166,.32); color: #fff; }
+.nav-item.active { background: rgba(61,91,166,.42); color: #fff; }
 .nav-item.active svg { opacity: 1; color: var(--sky); }
 .nav-item .badge-count {
   margin-left: auto; background: var(--red); color: #fff; font-size: 11px; font-weight: 700;
@@ -212,7 +212,7 @@ select.input { appearance: none; background-image: url("data:image/svg+xml,%3Csv
 .kpi.ok::before { background: var(--green); }
 .kpi.warn::before { background: var(--yellow); }
 .kpi.bad::before { background: var(--red); }
-.kpi.accent::before { background: var(--purple); }
+.kpi.accent::before { background: var(--yellow); }
 .kpi .label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; display: flex; align-items: center; gap: 8px; }
 .kpi .label svg { width: 15px; height: 15px; opacity: .7; }
 .kpi .value { font-size: 30px; font-weight: 700; color: var(--navy); margin-top: 8px; line-height: 1; letter-spacing: -.02em; }
@@ -305,7 +305,7 @@ table.tbl tbody tr:hover, table.tbl tbody tr:hover { background: #fafcff; }
 .bar-row { display: grid; grid-template-columns: 150px 1fr 52px; align-items: center; gap: 12px; padding: 7px 0; }
 .bar-row .nm { font-size: 13px; color: var(--navy); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bar-track { background: var(--panel); border-radius: 999px; height: 12px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), var(--purple)); }
+.bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), var(--sky)); }
 .bar-row .num { font-size: 13px; font-weight: 700; color: var(--navy); text-align: right; }
 
 /* ---- code error ---- */

@@ -14,7 +14,7 @@
 
   // ---- brand mark (inline SVG, no external asset) ------------------------
   var MARK = '<svg width="34" height="34" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#3D5BA6"/><path d="M12 26V15a3 3 0 0 1 3-3h7a6 6 0 0 1 0 12h-4" stroke="#FDC503" stroke-width="2.6" stroke-linecap="round"/><circle cx="25" cy="28" r="2.4" fill="#98C5ED"/></svg>';
-  var MARK_LIGHT = '<svg width="32" height="32" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#5B3DA6"/><path d="M12 26V15a3 3 0 0 1 3-3h7a6 6 0 0 1 0 12h-4" stroke="#FDC503" stroke-width="2.6" stroke-linecap="round"/><circle cx="25" cy="28" r="2.4" fill="#98C5ED"/></svg>';
+  var MARK_LIGHT = '<svg width="32" height="32" viewBox="0 0 40 40" fill="none" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#3D5BA6"/><path d="M12 26V15a3 3 0 0 1 3-3h7a6 6 0 0 1 0 12h-4" stroke="#FDC503" stroke-width="2.6" stroke-linecap="round"/><circle cx="25" cy="28" r="2.4" fill="#98C5ED"/></svg>';
 
   // ---- icons (Lucide-style) ---------------------------------------------
   var IC = {
