@@ -27,7 +27,6 @@ window.MC_CFG = Object.freeze({
     { id: 'leads',     label: 'Seller Leads',          url: 'https://twigs002.github.io/quay-leads/' },
     { id: 'hubspot',   label: 'Team Insights',         url: 'https://twigs002.github.io/quay-hubspot/' },
     { id: 'boarding',  label: 'On/Offboarding Tool',   url: 'https://twigs002.github.io/quay-1-onoff-boarding-tool/' },
-    { id: 'polar',     label: 'Polar Push',            url: 'https://twigs002.github.io/polar-push/' },
     { id: 'invoicing', label: 'Broker Invoicing',      url: 'https://twigs002.github.io/broker-invoicing/' },
     { id: 'clock',     label: 'Clock In/Out',          url: 'https://staffclock-app.vercel.app/' },
   ],
