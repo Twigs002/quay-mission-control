@@ -148,23 +148,26 @@
   }
 
   function bootStaff(sess) {
-      // fetch staff row
-      sb.from('staff').select('id,name,is_super').eq('auth_user_id', sess.user.id).maybeSingle()
-        .then(function (sr) {
-          session.staff = (sr && sr.data) || null;
-          session.owner = isOwner(session.user, session.staff);
-          if (!session.owner) { renderLock(); return; }
-          window.QUAY_SESSION = { id: session.staff ? session.staff.id : null, name: (session.staff && session.staff.name) || session.user.email, super: true };
-          enterApp();
-        })
-        .catch(function () {
-          // staff lookup may be blocked; still allow owner-by-email
-          session.staff = null;
-          session.owner = isOwner(session.user, null);
-          if (!session.owner) { renderLock(); return; }
-          window.QUAY_SESSION = { id: null, name: session.user.email, super: true };
-          enterApp();
-        });
+    var email = (sess.user.email || '').toLowerCase();
+    var isWork = /@quay1\.co\.za$/.test(email);   // Google / Workspace login
+    function finish(staff) {
+      session.staff = staff || null;
+      session.owner = isOwner(session.user, session.staff);
+      if (!session.owner) { renderLock(); return; }
+      window.QUAY_SESSION = { id: staff ? staff.id : null, name: (staff && staff.name) || sess.user.email, super: true };
+      enterApp();
+    }
+    // PIN logins resolve by auth_user_id. Google logins (Workspace email) won't
+    // match auth_user_id, so fall back to the work_email mapping.
+    sb.from('staff').select('id,name,is_super').eq('auth_user_id', sess.user.id).maybeSingle()
+      .then(function (sr) {
+        var staff = (sr && sr.data) || null;
+        if (staff || !isWork) { finish(staff); return; }
+        sb.from('staff').select('id,name,is_super').ilike('work_email', email).maybeSingle()
+          .then(function (sr2) { finish((sr2 && sr2.data) || null); })
+          .catch(function () { finish(null); });
+      })
+      .catch(function () { finish(null); });
   }
 
   function show(which) {

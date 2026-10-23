@@ -19,7 +19,7 @@ window.MC_CFG = Object.freeze({
   OWNER_EMAILS: [],                        // used only when RESTRICT_TO_OWNERS
 
   ALLOW_PIN_FALLBACK: true,                // username + PIN sign-in (primary)
-  ENABLE_GOOGLE: false,                    // flip true only after Supabase Google OAuth is configured
+  ENABLE_GOOGLE: true,                     // Supabase Google OAuth configured 2026-10-23
 
   // The apps Mission Control watches (mirrors quay-nav.js SITES order).
   SITES: [
